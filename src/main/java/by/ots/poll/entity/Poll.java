@@ -1,14 +1,11 @@
 package by.ots.poll.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @ToString
 @Data
@@ -17,11 +14,11 @@ import java.util.Set;
 @Table(name = "poll")
 public class Poll {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "poll_id")
     private Long id;
     private String name;
-    @OneToMany(mappedBy ="poll", cascade = CascadeType.ALL)
-   // @JoinColumn(name = "answer_id")
-    private Set<Answer> answersList;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "poll_id")
+    private List<Answer> answersList;
 }

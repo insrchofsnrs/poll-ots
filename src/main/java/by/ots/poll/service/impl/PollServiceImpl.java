@@ -1,5 +1,6 @@
 package by.ots.poll.service.impl;
 
+import by.ots.poll.dto.GetAnswerDto;
 import by.ots.poll.dto.PollDto;
 import by.ots.poll.entity.Poll;
 import by.ots.poll.repository.PollRepository;
@@ -7,14 +8,15 @@ import by.ots.poll.service.IPollService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.transaction.Transactional;
+import java.lang.reflect.Type;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -29,21 +31,31 @@ public class PollServiceImpl implements IPollService {
 
     @Override
     @Nullable
+
     public Poll createPoll(PollDto pollDto) {
         Poll result = null;
         if (pollDto != null) {
-            result = modelMapper.map(pollDto, Poll.class);
-            pollRepository.save(result);
+            Long id = pollRepository.save(modelMapper.map(pollDto, Poll.class)).getId();
+            result = getPoll(id);
         }
         return result;
     }
+
+
+    private Poll getPoll(Long id) {
+        Poll result;
+        result = pollRepository.getOne(id);
+        return result;
+    }
+
     @Transactional
     @Override
-    public List<PollDto> getAllPolls() {
-        List<PollDto> result = null;
+    public List<PollDto<GetAnswerDto>> getAllPolls() {
+        List<PollDto<GetAnswerDto>> result = null;
         List<Poll> list = pollRepository.findAll();
         if (!list.isEmpty()) {
-            result = list.stream().map((p) -> modelMapper.map(p, PollDto.class)).collect(Collectors.toList());
+            Type listType = new TypeToken<List<PollDto<GetAnswerDto>>>() {}.getType();
+            result = modelMapper.map(list, listType);
         }
         return result;
     }

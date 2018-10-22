@@ -3,12 +3,11 @@ package by.ots.poll.dto;
 import lombok.Data;
 
 import java.util.List;
-import java.util.Set;
 
 @Data
-public class PollDto {
+public class PollDto<T> {
     private Long id;
     private String name;
-    private Set<AnswerDto> answersList;
+    private List<T> answersList;
 
 }

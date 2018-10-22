@@ -1,6 +1,5 @@
 package by.ots.poll.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,12 +11,12 @@ import javax.persistence.*;
 @Table(name = "answer")
 public class Answer {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "answer_id")
     private Long id;
     private String vote;
-    private Integer count;
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "poll_id")
-    private Poll poll;
+    @Column(name = "COUNT", columnDefinition = "INTEGER DEFAULT 0")
+    private Integer count = 0;
+    @Column(name = "poll_id", insertable = false, updatable = false)
+    private Long pollId;
 }
