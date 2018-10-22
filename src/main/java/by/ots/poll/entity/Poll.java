@@ -18,6 +18,7 @@ public class Poll {
     @Column(name = "poll_id")
     private Long id;
     private String name;
+    private boolean status = false;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "poll_id")
     private List<Answer> answersList;

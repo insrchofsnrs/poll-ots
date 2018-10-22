@@ -3,6 +3,7 @@ package by.ots.poll.service.impl;
 import by.ots.poll.dto.GetAnswerDto;
 import by.ots.poll.dto.PollDto;
 import by.ots.poll.entity.Poll;
+import by.ots.poll.exception.PollNotFoundException;
 import by.ots.poll.repository.PollRepository;
 import by.ots.poll.service.IPollService;
 import lombok.extern.slf4j.Slf4j;
@@ -29,9 +30,9 @@ public class PollServiceImpl implements IPollService {
     @Resource
     private ModelMapper modelMapper;
 
+
     @Override
     @Nullable
-
     public Poll createPoll(PollDto pollDto) {
         Poll result = null;
         if (pollDto != null) {
@@ -48,13 +49,41 @@ public class PollServiceImpl implements IPollService {
         return result;
     }
 
+    @Override
+    @Transactional
+    public boolean startOrStopPoll(String id, boolean status) {
+        boolean result;
+        if (NumberUtils.isParsable(id)) {
+            Poll poll = pollRepository.getOne(NumberUtils.createLong(id));
+            poll.setStatus(status);
+            pollRepository.save(poll);
+            result = status;
+        } else {
+            throw  new PollNotFoundException("Опрос не найден");
+        }
+        return result;
+    }
+
+    @Override
+    public boolean isStatus(String id) {
+        boolean result;
+        //если недостучался кинуть ошибку
+        if (NumberUtils.isParsable(id)) {
+           result = pollRepository.getOne(NumberUtils.createLong(id)).isStatus();
+        } else {
+            throw new PollNotFoundException(" Опрос не найден");
+        }
+        return result;
+    }
+
     @Transactional
     @Override
     public List<PollDto<GetAnswerDto>> getAllPolls() {
         List<PollDto<GetAnswerDto>> result = null;
         List<Poll> list = pollRepository.findAll();
         if (!list.isEmpty()) {
-            Type listType = new TypeToken<List<PollDto<GetAnswerDto>>>() {}.getType();
+            Type listType = new TypeToken<List<PollDto<GetAnswerDto>>>() {
+            }.getType();
             result = modelMapper.map(list, listType);
         }
         return result;
@@ -63,8 +92,8 @@ public class PollServiceImpl implements IPollService {
     @Override
     public boolean removePoll(String id) {
         boolean result = false;
-        if (NumberUtils.isCreatable(id)) {
-            pollRepository.deleteById(Long.parseLong(id));
+        if (NumberUtils.isParsable(id)) {
+            pollRepository.deleteById(NumberUtils.createLong(id));
             result = true;
         }
         return result;

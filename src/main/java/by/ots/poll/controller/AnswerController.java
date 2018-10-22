@@ -19,7 +19,9 @@ public class AnswerController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Integer> updateAnswerCount(@PathVariable String id){
+
         Integer count = answerService.updateAnswerCount(id);
+
         return new ResponseEntity<>(count, HttpStatus.OK);
     }
 

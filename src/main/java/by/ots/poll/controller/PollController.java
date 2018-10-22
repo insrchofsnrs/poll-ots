@@ -1,5 +1,6 @@
 package by.ots.poll.controller;
 
+import by.ots.poll.dto.AddAnswerDto;
 import by.ots.poll.dto.AnswerDto;
 import by.ots.poll.dto.GetAnswerDto;
 import by.ots.poll.dto.PollDto;
@@ -7,31 +8,49 @@ import by.ots.poll.entity.Poll;
 import by.ots.poll.service.IPollService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.util.List;
 
-@RestController("/api/v1/poll")
+@RestController
+@RequestMapping(value = "/api/v1/poll")
 public class PollController {
 
     @Resource
-    private IPollService pollService;
+    private IPollService<AddAnswerDto> pollService1;
+    @Resource
+    private IPollService<GetAnswerDto> pollService2;
 
     @PostMapping
-    public ResponseEntity<Poll> createPoll(@RequestBody PollDto pollDto) {
+    public ResponseEntity<Poll> createPoll(@Valid @RequestBody  PollDto<AddAnswerDto> pollDto) {
         Poll poll;
-        poll = pollService.createPoll(pollDto);
+        poll = pollService1.createPoll(pollDto);
         return new ResponseEntity<>(poll, HttpStatus.CREATED);
     }
 
 
     @GetMapping
     public ResponseEntity<List<PollDto<GetAnswerDto>>> getAllPolls(){
-        List<PollDto<GetAnswerDto>> list = pollService.getAllPolls();
+        List<PollDto<GetAnswerDto>> list = pollService2.getAllPolls();
         return new ResponseEntity<>(list, HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<URL> startOrStopPoll (@PathVariable String id, boolean status){
+        pollService1.startOrStopPoll(id,status);
+        URL url = null;
+        try{
+
+            url = new URL("/api/v1/poll/"+id) ;
+        } catch (MalformedURLException e){
+
+        }
+        return new ResponseEntity<>(url, HttpStatus.OK);
     }
 }
