@@ -53,11 +53,14 @@ public class PollServiceImpl implements IPollService {
     @Override
     @Nullable
     public ResultPollDto getPoll(String id) {
-        ResultPollDto result = null;
+        ResultPollDto result;
         if (NumberUtils.isParsable(id)) {
             Optional poll = pollRepository.findById(NumberUtils.createLong(id));
             if (poll.isPresent()) {
                 result = modelMapper.map(poll.get(), ResultPollDto.class);
+            } else {
+                log.warn("Wrong id {}", id);
+                throw new PollException("Poll not founded id: " + id);
             }
         } else {
             log.warn("Wrong id {}", id);
