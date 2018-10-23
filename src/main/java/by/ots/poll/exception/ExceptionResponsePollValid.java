@@ -1,17 +1,20 @@
 package by.ots.poll.exception;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Date;
 import java.util.List;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class ExceptionResponsePollValid {
-    private Date timestamp;
-    private String message;
+@Getter
+@Setter
+public class ExceptionResponsePollValid extends ExceptionResponce {
     private List<InvalidFieldsPollDto> invalidFieldsList;
+
+    public ExceptionResponsePollValid(Date timestamp,
+                                      String message,
+                                      List<InvalidFieldsPollDto> invalidFieldsList) {
+        super(timestamp, message);
+        this.invalidFieldsList = invalidFieldsList;
+    }
 }

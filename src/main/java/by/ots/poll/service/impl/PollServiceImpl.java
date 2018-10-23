@@ -3,7 +3,7 @@ package by.ots.poll.service.impl;
 import by.ots.poll.dto.GetAnswerDto;
 import by.ots.poll.dto.PollDto;
 import by.ots.poll.entity.Poll;
-import by.ots.poll.exception.PollNotFoundException;
+import by.ots.poll.exception.PollException;
 import by.ots.poll.repository.PollRepository;
 import by.ots.poll.service.IPollService;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +17,10 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.transaction.Transactional;
 import java.lang.reflect.Type;
+import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.List;
 
 @Slf4j
@@ -30,6 +34,8 @@ public class PollServiceImpl implements IPollService {
     @Resource
     private ModelMapper modelMapper;
 
+    @Value("${server.port}")
+    private String currentPort;
 
     @Override
     @Nullable
@@ -42,36 +48,48 @@ public class PollServiceImpl implements IPollService {
         return result;
     }
 
-
-    private Poll getPoll(Long id) {
-        Poll result;
-        result = pollRepository.getOne(id);
-        return result;
-    }
-
     @Override
-    @Transactional
-    public boolean startOrStopPoll(String id, boolean status) {
-        boolean result;
+    @Nullable
+    public ResultPollDto getPoll(String id) {
+        ResultPollDto result;
         if (NumberUtils.isParsable(id)) {
             Poll poll = pollRepository.getOne(NumberUtils.createLong(id));
-            poll.setStatus(status);
-            pollRepository.save(poll);
-            result = status;
+            result = modelMapper.map(poll, ResultPollDto.class);
         } else {
-            throw  new PollNotFoundException("Опрос не найден");
+            log.warn("Wrong id {}", id);
+            throw new PollException("Id not a number: " + id);
         }
         return result;
     }
 
     @Override
+    public StatusDto changeStatus(String id, StatusDto status) throws UnknownHostException, MalformedURLException {
+        if (NumberUtils.isParsable(id)) {
+            Poll poll = pollRepository.getOne(NumberUtils.createLong(id));
+            poll.setStatus(status.isStatus());
+            pollRepository.save(poll);
+            generationUrl(id, status);
+        } else {
+            log.warn("Wrong id {}", id);
+            throw new PollException("Id not a number: " + id);
+        }
+        return status;
+    }
+
+    private void generationUrl(String id, StatusDto status) throws UnknownHostException, MalformedURLException {
+        URL url = new URL("http://" + InetAddress.getLocalHost().getHostAddress() +
+                ":" + currentPort + "/api/v1/poll/" + id);
+        status.setUrl(url);
+    }
+
+    @Override
     public boolean isStatus(String id) {
         boolean result;
-        //если недостучался кинуть ошибку
         if (NumberUtils.isParsable(id)) {
            result = pollRepository.getOne(NumberUtils.createLong(id)).isStatus();
         } else {
-            throw new PollNotFoundException(" Опрос не найден");
+            log.warn("Wrong id {}", id);
+            throw new PollException("Id not a number: " + id);
         }
         return result;
     }
@@ -89,13 +107,4 @@ public class PollServiceImpl implements IPollService {
         return result;
     }
 
-    @Override
-    public boolean removePoll(String id) {
-        boolean result = false;
-        if (NumberUtils.isParsable(id)) {
-            pollRepository.deleteById(NumberUtils.createLong(id));
-            result = true;
-        }
-        return result;
-    }
 }

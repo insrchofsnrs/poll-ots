@@ -15,7 +15,7 @@ public class Answer {
     @Column(name = "answer_id")
     private Long id;
     private String vote;
-    @Column(name = "COUNT", columnDefinition = "INTEGER DEFAULT 0")
+    @Column(name = "count")
     private Integer count = 0;
     @Column(name = "poll_id", insertable = false, updatable = false)
     private Long pollId;

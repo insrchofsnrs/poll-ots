@@ -23,7 +23,7 @@ public class PollAndAnswerDbTest {
 
     @Test
     @Transactional
-    public void createPoll (){
+    public void createPoll() {
 
         Poll poll = new Poll();
         poll.setName("first poll");
@@ -48,8 +48,8 @@ public class PollAndAnswerDbTest {
         pollRepository.save(poll);
 
         Poll newPoll = pollRepository.findById(pollId).get();
-        pollRepository.findAll().stream().forEach(p-> System.out.println(p.getAnswersList().stream().findFirst().toString()));
-        Assert.assertEquals(poll,newPoll);
+        pollRepository.findAll().stream().forEach(p -> System.out.println(p.getAnswersList().stream().findFirst().toString()));
+        Assert.assertEquals(poll, newPoll);
 
 
     }

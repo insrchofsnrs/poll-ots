@@ -1,13 +1,9 @@
 package by.ots.poll;
 
-import by.ots.poll.dto.PollDto;
 import by.ots.poll.entity.Answer;
 import by.ots.poll.entity.Poll;
-import by.ots.poll.util.impl.ConvertDtoUtil;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -20,11 +16,9 @@ import java.util.Set;
 @SpringBootTest
 public class DtoConverterTest {
 
-    @Autowired
-    ConvertDtoUtil convertDtoUtil;
 
     @Test
-    public void pollConverterTest(){
+    public void pollConverterTest() {
         Poll poll = new Poll();
         poll.setId(1L);
         poll.setName("first poll");

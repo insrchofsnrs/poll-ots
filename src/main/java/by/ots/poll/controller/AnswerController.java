@@ -1,12 +1,11 @@
 package by.ots.poll.controller;
 
+import by.ots.poll.dto.AnswerCountDto;
+import by.ots.poll.dto.ResponseAnswerDto;
 import by.ots.poll.service.IAnswerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -18,11 +17,15 @@ public class AnswerController {
     private IAnswerService answerService;
 
     @PutMapping("/{id}")
-    public ResponseEntity<Integer> updateAnswerCount(@PathVariable String id){
-
-        Integer count = answerService.updateAnswerCount(id);
-
+    public ResponseEntity<AnswerCountDto> updateAnswerCount(@PathVariable String id) {
+        AnswerCountDto count = answerService.updateAnswerCount(id);
         return new ResponseEntity<>(count, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseAnswerDto> getAnswer(@PathVariable String id) {
+        ResponseAnswerDto answer = answerService.getAnswer(id);
+        return new ResponseEntity<>(answer, HttpStatus.OK);
     }
 
 }

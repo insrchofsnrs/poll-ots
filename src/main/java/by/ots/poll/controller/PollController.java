@@ -18,6 +18,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping(value = "/api/v1/poll")
 public class PollController {
@@ -28,17 +29,21 @@ public class PollController {
     private IPollService<GetAnswerDto> pollService2;
 
     @PostMapping
-    public ResponseEntity<Poll> createPoll(@Valid @RequestBody  PollDto<AddAnswerDto> pollDto) {
-        Poll poll;
-        poll = pollService1.createPoll(pollDto);
-        return new ResponseEntity<>(poll, HttpStatus.CREATED);
+    public ResponseEntity<ResponsePollDto> createPoll(@Valid @RequestBody CreatePollDto createPollDto) {
+        ResponsePollDto resultPollDto = pollService.createPoll(createPollDto);
+        return new ResponseEntity<>(resultPollDto, HttpStatus.CREATED);
     }
-
 
     @GetMapping
     public ResponseEntity<List<PollDto<GetAnswerDto>>> getAllPolls(){
         List<PollDto<GetAnswerDto>> list = pollService2.getAllPolls();
         return new ResponseEntity<>(list, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ResultPollDto> getPoll(@PathVariable String id) {
+        ResultPollDto result = pollService.getPoll(id);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
