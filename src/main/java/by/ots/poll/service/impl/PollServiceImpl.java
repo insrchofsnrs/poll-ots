@@ -22,6 +22,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -51,10 +52,12 @@ public class PollServiceImpl implements IPollService {
     @Override
     @Nullable
     public ResultPollDto getPoll(String id) {
-        ResultPollDto result;
+        ResultPollDto result = null;
         if (NumberUtils.isParsable(id)) {
-            Poll poll = pollRepository.getOne(NumberUtils.createLong(id));
-            result = modelMapper.map(poll, ResultPollDto.class);
+            Optional poll = pollRepository.findById(NumberUtils.createLong(id));
+            if (poll.isPresent()) {
+                result = modelMapper.map(poll.get(), ResultPollDto.class);
+            }
         } else {
             log.warn("Wrong id {}", id);
             throw new PollException("Id not a number: " + id);
