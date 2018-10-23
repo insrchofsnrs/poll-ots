@@ -1,7 +1,9 @@
 package by.ots.poll.service.impl;
 
-import by.ots.poll.dto.GetAnswerDto;
-import by.ots.poll.dto.PollDto;
+import by.ots.poll.dto.CreatePollDto;
+import by.ots.poll.dto.ResponsePollDto;
+import by.ots.poll.dto.ResultPollDto;
+import by.ots.poll.dto.StatusDto;
 import by.ots.poll.entity.Poll;
 import by.ots.poll.exception.PollException;
 import by.ots.poll.repository.PollRepository;
@@ -10,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
-import org.springframework.core.convert.converter.Converter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
@@ -30,8 +32,7 @@ public class PollServiceImpl implements IPollService {
 
     @Resource
     private PollRepository pollRepository;
-    @Resource
-    private Converter<String, Integer> converter;
+
     @Resource
     private ModelMapper modelMapper;
 
@@ -40,11 +41,11 @@ public class PollServiceImpl implements IPollService {
 
     @Override
     @Nullable
-    public Poll createPoll(PollDto pollDto) {
-        Poll result = null;
+    public ResponsePollDto createPoll(CreatePollDto pollDto) {
+        ResponsePollDto result = null;
         if (pollDto != null) {
-            Long id = pollRepository.save(modelMapper.map(pollDto, Poll.class)).getId();
-            result = getPoll(id);
+            Poll poll = pollRepository.save(modelMapper.map(pollDto, Poll.class));
+            result = modelMapper.map(poll, ResponsePollDto.class);
         }
         return result;
     }
@@ -89,7 +90,7 @@ public class PollServiceImpl implements IPollService {
     public boolean isStatus(String id) {
         boolean result;
         if (NumberUtils.isParsable(id)) {
-           result = pollRepository.getOne(NumberUtils.createLong(id)).isStatus();
+            result = pollRepository.getOne(NumberUtils.createLong(id)).isStatus();
         } else {
             log.warn("Wrong id {}", id);
             throw new PollException("Id not a number: " + id);
@@ -99,11 +100,12 @@ public class PollServiceImpl implements IPollService {
 
     @Transactional
     @Override
-    public List<PollDto<GetAnswerDto>> getAllPolls() {
-        List<PollDto<GetAnswerDto>> result = null;
+    @Nullable
+    public List<ResultPollDto> getAllPolls() {
+        List<ResultPollDto> result = null;
         List<Poll> list = pollRepository.findAll();
         if (!list.isEmpty()) {
-            Type listType = new TypeToken<List<PollDto<GetAnswerDto>>>() {
+            Type listType = new TypeToken<List<ResultPollDto>>() {
             }.getType();
             result = modelMapper.map(list, listType);
         }

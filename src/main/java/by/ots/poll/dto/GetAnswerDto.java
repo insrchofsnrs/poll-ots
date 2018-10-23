@@ -1,9 +1,11 @@
 package by.ots.poll.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 public class GetAnswerDto extends AnswerDto {
     private String vote;
