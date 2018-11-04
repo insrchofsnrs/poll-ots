@@ -14,6 +14,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 import java.util.Optional;
 
 @Slf4j
@@ -31,7 +32,8 @@ public class AnswerServiceImpl implements IAnswerService {
 
     @Nullable
     @Override
-    public AnswerCountDto updateAnswerCount(String id) {
+    @Transactional
+       public AnswerCountDto updateAnswerCount(String id) {
         AnswerCountDto result = new AnswerCountDto();
         if (NumberUtils.isParsable(id)) {
             Long ansId = NumberUtils.createLong(id);
